@@ -1,0 +1,33 @@
+---
+- name: add PPA
+  apt_repository:
+    repo: 'ppa:certbot/certbot'
+    state: present
+  become: yes
+
+- name: install certbot
+  apt:
+    name: certbot
+    state: present
+  become: yes
+
+- name: install cli.ini
+  copy:
+    src: cli.ini
+    dest: /etc/letsencrypt/cli.ini
+  become: yes
+
+- name: generate certificate
+  command: certbot certonly --standalone -d {{ certbot_domain }} -m {{ certbot_email }}
+  args:
+    creates: /etc/letsencrypt/live/{{ certbot_domain }}/fullchain.pem
+  become: yes
+
+- name: set cron job for auto renewal
+  cron:
+    name: Certbot certificate renewal
+    day: "{{ certbot_renew_day }}"
+    hour: "{{ certbot_renew_hour }}"
+    minute: "{{ certbot_renew_minute }}"
+    job: certbot renew --quiet --no-self-upgrade
+  become: yes

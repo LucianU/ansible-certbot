@@ -1,0 +1,4 @@
+---
+certbot_renew_day: "*"
+certbot_renew_hour: 0
+certbot_renew_minute: 0
